@@ -6,33 +6,39 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { calculatePeriodStats } from "@/lib/utils/period-calculations";
 
+
 // Just a simple period summary card
-export function PeriodCard({ periodEntry, onEdit, onDelete }) {
+export function PeriodCard({ periodEntry, onEdit, onDelete, isLatest }) {
   const stats = calculatePeriodStats(periodEntry);
   const currentDate = new Date();
 
   const lastStart = new Date(periodEntry.lastPeriodDate);
   const predictedEnd = addDays(lastStart, periodEntry.periodDuration - 1);
 
-  const isNow =
-    isWithinInterval(currentDate, { start: lastStart, end: predictedEnd }) ||
-    isWithinInterval(currentDate, { start: stats.nextPeriodPrediction, end: stats.periodEndPrediction });
-
-  const isFuture = isBefore(currentDate, stats.nextPeriodPrediction);
-  const isFinished = isBefore(stats.periodEndPrediction, currentDate);
-
+  // Only show prediction for the latest entry
+  let isNow = false;
+  let isFuture = false;
+  let isFinished = false;
   let daysMessage = "";
 
-  if (isNow) {
-    const remainingDays = Math.ceil(
-      (stats.periodEndPrediction.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    daysMessage = `${remainingDays} day${remainingDays !== 1 ? "s" : ""} remaining in your period`;
-  } else if (isFuture) {
-    const daysUntil = Math.ceil(
-      (stats.nextPeriodPrediction.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    daysMessage = `${daysUntil} day${daysUntil !== 1 ? "s" : ""} until your next period`;
+  if (isLatest) {
+    isNow =
+      isWithinInterval(currentDate, { start: lastStart, end: predictedEnd }) ||
+      isWithinInterval(currentDate, { start: stats.nextPeriodPrediction, end: stats.periodEndPrediction });
+    isFuture = isBefore(currentDate, stats.nextPeriodPrediction);
+    isFinished = isBefore(stats.periodEndPrediction, currentDate);
+
+    if (isNow) {
+      const remainingDays = Math.ceil(
+        (stats.periodEndPrediction.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
+      );      daysMessage = `${remainingDays} day${remainingDays !== 1 ? "s" : ""} until next period`;
+
+    } else if (isFuture) {
+      const daysUntil = Math.ceil(
+        (stats.nextPeriodPrediction.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      daysMessage = `${daysUntil} day${daysUntil !== 1 ? "s" : ""} until your next period`;
+    }
   }
 
   return (

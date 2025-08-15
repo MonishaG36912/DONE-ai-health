@@ -121,12 +121,14 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-3">
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {/* Only show prediction (Upcoming/Current) for the latest entry, others as history */}
                 {[...periodEntries]
                   .sort((a, b) => new Date(b.lastPeriodDate) - new Date(a.lastPeriodDate))
-                  .map((entry) => (
+                  .map((entry, idx, arr) => (
                     <PeriodCard
                       key={entry.id}
                       periodEntry={entry}
+                      isLatest={idx === 0}
                       onEdit={() => {
                         setSelectedEntry(entry);
                         setFormOpen(true);
@@ -162,7 +164,7 @@ export default function Home() {
       )}
 
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {selectedEntry ? "Update" : "Enter"} Your Period Information
