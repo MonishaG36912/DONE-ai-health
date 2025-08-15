@@ -1,3 +1,22 @@
+
+export async function DELETE(request) {
+  try {
+    const userId = request.headers.get('X-User-Id') || DUMMY_USER_ID;
+    const body = await request.json();
+    const { id } = body;
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required for delete' }, { status: 400 });
+    }
+    const deleted = await db.delete(periodEntries).where(eq(periodEntries.id, id)).returning();
+    if (!deleted.length) {
+      return NextResponse.json({ error: 'Entry not found' }, { status: 404 });
+    }
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('❌ Error deleting period entry:', error);
+    return NextResponse.json({ error: 'Failed to delete period entry' }, { status: 500 });
+  }
+}
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { periodEntries } from '@/lib/db/schema';

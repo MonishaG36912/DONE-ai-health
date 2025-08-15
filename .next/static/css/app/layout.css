@@ -1650,6 +1650,10 @@ video {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
+.text-red-500 {
+  --tw-text-opacity: 1;
+  color: rgb(239 68 68 / var(--tw-text-opacity));
+}
 .underline-offset-4 {
   text-underline-offset: 4px;
 }
@@ -1885,6 +1889,14 @@ video {
   border-bottom-right-radius: calc(var(--radius) - 2px);
 }
 
+.last\:border-b-0:last-child {
+  border-bottom-width: 0px;
+}
+
+.last\:pb-0:last-child {
+  padding-bottom: 0px;
+}
+
 .focus-within\:relative:focus-within {
   position: relative;
 }
@@ -1931,6 +1943,11 @@ video {
 
 .hover\:bg-secondary\/80:hover {
   background-color: hsl(var(--secondary) / 0.8);
+}
+
+.hover\:bg-red-50:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 242 242 / var(--tw-bg-opacity));
 }
 
 .hover\:text-accent-foreground:hover {

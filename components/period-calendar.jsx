@@ -48,40 +48,47 @@ export function PeriodCalendar() {
     fetchPeriodData();
   }, []);
 
-  // Calculate all period dates and predictions
+  // Calculate all period dates and predictions, but only use the latest entry for predictions
   const calculatePeriodDates = () => {
     const periodDates = new Set();
     const ovulationDates = new Set();
     const fertileDates = new Set();
     const predictedDates = new Set();
 
+    if (!periodEntries || periodEntries.length === 0) {
+      return { periodDates, ovulationDates, fertileDates, predictedDates };
+    }
+
+    // Sort entries by lastPeriodDate descending (latest first)
+    const sortedEntries = [...periodEntries].sort((a, b) => new Date(b.lastPeriodDate) - new Date(a.lastPeriodDate));
+
+    // Add actual period days for all entries
     periodEntries.forEach((entry) => {
       const startDate = new Date(entry.lastPeriodDate);
-      const stats = calculatePeriodStats(entry);
-
-      // Add actual period days
       for (let i = 0; i < entry.periodDuration; i++) {
         const periodDay = addDays(startDate, i);
         periodDates.add(format(periodDay, 'yyyy-MM-dd'));
       }
+    });
 
+    // Use only the latest entry for predictions
+    const latestEntry = sortedEntries[0];
+    if (latestEntry) {
+      const stats = calculatePeriodStats(latestEntry);
       // Add predicted next period
-      for (let i = 0; i < entry.periodDuration; i++) {
+      for (let i = 0; i < latestEntry.periodDuration; i++) {
         const predictedDay = addDays(stats.nextPeriodPrediction, i);
         predictedDates.add(format(predictedDay, 'yyyy-MM-dd'));
       }
-
       // Add ovulation date
       ovulationDates.add(format(stats.ovulationPrediction, 'yyyy-MM-dd'));
-
       // Add fertile window
       const fertileStart = stats.fertility.start;
       const fertileEnd = stats.fertility.end;
-      
       eachDayOfInterval({ start: fertileStart, end: fertileEnd }).forEach(day => {
         fertileDates.add(format(day, 'yyyy-MM-dd'));
       });
-    });
+    }
 
     return { periodDates, ovulationDates, fertileDates, predictedDates };
   };
@@ -256,35 +263,35 @@ export function PeriodCalendar() {
                 )}
               </div>
 
-              {/* Quick Stats */}
+              {/* Quick Stats: Show all period entries, latest first */}
               {periodEntries.length > 0 && (
                 <div className="space-y-3 pt-4 border-t">
-                  <h4 className="font-medium">Current Cycle Info</h4>
-                  {periodEntries[0] && (
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Last Period:</span>
-                        <span>{format(new Date(periodEntries[0].lastPeriodDate), 'MMM d, yyyy')}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Cycle Length:</span>
-                        <span>{periodEntries[0].cycleLength} days</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Period Duration:</span>
-                        <span>{periodEntries[0].periodDuration} days</span>
-                      </div>
-                      {(() => {
-                        const stats = calculatePeriodStats(periodEntries[0]);
-                        return (
+                  <h4 className="font-medium">Period Info (Latest on Top)</h4>
+                  {[...periodEntries]
+                    .sort((a, b) => new Date(b.lastPeriodDate) - new Date(a.lastPeriodDate))
+                    .map((entry, idx) => {
+                      const stats = calculatePeriodStats(entry);
+                      return (
+                        <div key={entry.lastPeriodDate + '-' + idx} className="space-y-2 text-sm border-b pb-2 last:border-b-0 last:pb-0">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Last Period:</span>
+                            <span>{format(new Date(entry.lastPeriodDate), 'MMM d, yyyy')}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Cycle Length:</span>
+                            <span>{entry.cycleLength} days</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Period Duration:</span>
+                            <span>{entry.periodDuration} days</span>
+                          </div>
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Next Period:</span>
                             <span>{format(stats.nextPeriodPrediction, 'MMM d, yyyy')}</span>
                           </div>
-                        );
-                      })()}
-                    </div>
-                  )}
+                        </div>
+                      );
+                    })}
                 </div>
               )}
             </div>

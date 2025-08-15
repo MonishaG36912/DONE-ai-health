@@ -1,13 +1,13 @@
 "use client";
 
 import { format, addDays, isBefore, isWithinInterval } from "date-fns";
-import { CalendarIcon, CalendarDays, Clock } from "lucide-react";
+import { CalendarIcon, CalendarDays, Clock, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { calculatePeriodStats } from "@/lib/utils/period-calculations";
 
 // Just a simple period summary card
-export function PeriodCard({ periodEntry, onEdit }) {
+export function PeriodCard({ periodEntry, onEdit, onDelete }) {
   const stats = calculatePeriodStats(periodEntry);
   const currentDate = new Date();
 
@@ -47,7 +47,7 @@ export function PeriodCard({ periodEntry, onEdit }) {
             : "bg-gray-50 dark:bg-gray-800/50"
         )}
       >
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-2">
           <CardTitle className="text-lg font-medium flex items-center">
             {isNow ? (
               <>
@@ -66,11 +66,18 @@ export function PeriodCard({ periodEntry, onEdit }) {
               </>
             )}
           </CardTitle>
-          {onEdit && (
-            <Button variant="ghost" size="sm" onClick={onEdit}>
-              Edit
-            </Button>
-          )}
+          <div className="flex gap-1">
+            {onEdit && (
+              <Button variant="ghost" size="sm" onClick={onEdit}>
+                Edit
+              </Button>
+            )}
+            {onDelete && (
+              <Button variant="ghost" size="sm" onClick={onDelete} aria-label="Delete" className="text-red-500 hover:bg-red-50">
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
 

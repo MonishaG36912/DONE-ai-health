@@ -121,16 +121,37 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-3">
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {periodEntries.map((entry) => (
-                  <PeriodCard
-                    key={entry.id}
-                    periodEntry={entry}
-                    onEdit={() => {
-                      setSelectedEntry(entry);
-                      setFormOpen(true);
-                    }}
-                  />
-                ))}
+                {[...periodEntries]
+                  .sort((a, b) => new Date(b.lastPeriodDate) - new Date(a.lastPeriodDate))
+                  .map((entry) => (
+                    <PeriodCard
+                      key={entry.id}
+                      periodEntry={entry}
+                      onEdit={() => {
+                        setSelectedEntry(entry);
+                        setFormOpen(true);
+                      }}
+                      onDelete={async () => {
+                        if (window.confirm('Are you sure you want to delete this entry?')) {
+                          try {
+                            const response = await fetch('/api/period', {
+                              method: 'DELETE',
+                              headers: {
+                                'Content-Type': 'application/json',
+                                'X-User-Id': DUMMY_USER_ID,
+                              },
+                              body: JSON.stringify({ id: entry.id }),
+                            });
+                            if (!response.ok) throw new Error('Failed to delete');
+                            setPeriodEntries((prev) => prev.filter((e) => e.id !== entry.id));
+                            toast.success('Entry deleted');
+                          } catch (err) {
+                            toast.error('Failed to delete entry');
+                          }
+                        }
+                      }}
+                    />
+                  ))}
               </div>
             </div>
             <div className="lg:col-span-1">
