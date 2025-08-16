@@ -139,7 +139,7 @@ export default function AddLog() {
         </div>
       )}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-3xl">
+  <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {selectedEntry ? "Update" : "Enter"} Your Period Information
