@@ -2,5 +2,6 @@
   "/page": "app/page.js",
   "/calendar/page": "app/calendar/page.js",
   "/settings/page": "app/settings/page.js",
-  "/here/page": "app/here/page.js"
+  "/here/page": "app/here/page.js",
+  "/api/period/route": "app/api/period/route.js"
 }
